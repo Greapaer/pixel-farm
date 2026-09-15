@@ -848,8 +848,22 @@
     backgroundColor: '#3c6ea5',
     pixelArt: true,
     roundPixels: true,
-    scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-    scene: [Boot, Preload, Menu, Game]
+    scale: { 
+      mode: Phaser.Scale.FIT, 
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      width: '100%',
+      height: '100%'
+    },
+    scene: [Boot, Preload, Menu, Game],
+    transparent: false,
+    antialias: false
+  });
+  
+  // Signal that the game is ready (hide loading screen)
+  game.events.once('ready', function() {
+    if (window.markGameReady) {
+      window.markGameReady();
+    }
   });
 
   window.FarmTest = {
