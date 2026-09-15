@@ -2,34 +2,239 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, shrink-to-fit=no">
 <meta name="description" content="Pixel Farm — pixel tycoon. Plant, water, harvest and grow your farm! / Пиксель Ферма — кликер-тайкон.">
-<link rel="icon" href="assets/img/coin.png">
+<meta name="theme-color" content="#2b2a33">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="format-detection" content="telephone=no">
+<meta name="msapplication-tap-highlight" content="no">
+
+<!-- Favicon & Icons -->
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/coin.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/img/coin.png">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/img/icon.png">
+<link rel="apple-touch-icon" href="assets/img/icon.png">
+<link rel="shortcut icon" href="assets/img/coin.png">
+<link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIlBpeGVsIEZhcm0iLAogICJzaG9ydF9uYW1lIjogIlBpeGVsRmFybSIsCiAgInN0YXJ0X3VybCI6ICIuLyIsCiAgImRpc3BsYXkiOiAiZnVsbHNjcmVlbiIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzJiMmEzMyIsCiAgInRoZW1lX2NvbG9yIjogIiMyYjJhMzMiLAogICJpY29ucyI6IFt7CiAgICAic3JjIjogImFzc2V0cy9pbWcvaWNvbi5wbmciLAogICAgInNpemVzIjogIjUxMng1MTIiLAogICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogIH1dCn0=">
+
 <title>Pixel Farm</title>
+
 <style>
+  /* Reset & Base */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
   html, body {
-    margin: 0; padding: 0; width: 100%; height: 100%;
-    background: #2b2a33; overflow: hidden;
-    -webkit-user-select: none; user-select: none;
-    -webkit-touch-callout: none; touch-action: none;
+    margin: 0; 
+    padding: 0; 
+    width: 100%; 
+    height: 100%;
+    background: #2b2a33; 
+    overflow: hidden;
+    -webkit-user-select: none; 
+    user-select: none;
+    -webkit-touch-callout: none; 
+    touch-action: none;
     -webkit-tap-highlight-color: transparent;
     overscroll-behavior: none;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   }
-  #game { width: 100%; height: 100%; }
+  
+  /* Game Container */
+  #game { 
+    width: 100%; 
+    height: 100%; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  
+  /* Canvas Styling */
   canvas {
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-    -webkit-user-select: none; user-select: none;
+    -webkit-user-select: none; 
+    user-select: none;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
   }
+  
+  /* Loading Screen */
+  .loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #2b2a33 0%, #1a1a2e 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  
+  .loading-logo {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+    margin-bottom: 30px;
+    object-fit: contain;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+  }
+  
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+  
+  .loading-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .loading-subtitle {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 30px;
+  }
+  
+  .loading-bar-container {
+    width: 200px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  
+  .loading-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+  }
+  
+  .loading-text {
+    font-size: 12px;
+    color: #888;
+    margin-top: 15px;
+  }
+  
+  /* Font Face */
   @font-face {
     font-family: 'Press Start 2P';
     src: url('assets/fonts/PressStart2P-Regular.ttf') format('truetype');
-    font-weight: 400; font-display: block;
+    font-weight: 400; 
+    font-display: swap;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    .loading-logo {
+      width: 80px;
+      height: 80px;
+    }
+    .loading-title {
+      font-size: 20px;
+    }
+    .loading-bar-container {
+      width: 150px;
+    }
+  }
+  
+  /* Safe area for notched devices */
+  @supports (padding: max(0px)) {
+    body {
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+      padding-top: max(0px, env(safe-area-inset-top));
+      padding-bottom: max(0px, env(safe-area-inset-bottom));
+    }
+  }
+  
+  /* Prevent pull-to-refresh on mobile */
+  body {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+  
+  /* Hide loading screen when game is ready */
+  body.game-ready .loading-screen {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
 </style>
 </head>
 <body>
+  <!-- Loading Screen -->
+  <div class="loading-screen" id="loadingScreen">
+    <img src="assets/img/icon.png" alt="Pixel Farm" class="loading-logo">
+    <div class="loading-title">Pixel Farm</div>
+    <div class="loading-subtitle">Loading...</div>
+    <div class="loading-bar-container">
+      <div class="loading-bar" id="loadingBar"></div>
+    </div>
+    <div class="loading-text" id="loadingText">0%</div>
+  </div>
+  
+  <!-- Game Container -->
   <div id="game"></div>
+  
+  <script>
+    // Loading progress simulation
+    (function() {
+      var bar = document.getElementById('loadingBar');
+      var text = document.getElementById('loadingText');
+      var progress = 0;
+      
+      function updateProgress(p) {
+        progress = Math.min(100, p);
+        bar.style.width = progress + '%';
+        text.textContent = progress + '%';
+      }
+      
+      // Simulate loading
+      var interval = setInterval(function() {
+        if (progress >= 90) {
+          clearInterval(interval);
+        } else {
+          updateProgress(progress + Math.random() * 10);
+        }
+      }, 200);
+      
+      // Expose function to mark game as ready
+      window.markGameReady = function() {
+        updateProgress(100);
+        setTimeout(function() {
+          document.body.classList.add('game-ready');
+        }, 300);
+      };
+    })();
+  </script>
   <script src="js/phaser.min.js"></script>
   <script src="js/main.js"></script>
 </body>
